@@ -23,7 +23,16 @@ This project is separted into 2 parts:
         - S3
         - IAM
     - Python 3.9+
-    Installed packages:
+    - Installed packages:
+
     ```
     pip install sagemaker boto3
     ```
+
+    # steps to recreate
+
+    - Head over to AWS Sagemaker and crete a domain and set it up for single user (use organization if it is for an org)
+    - click on the default domain which was created and launch Canvas
+    - Lunch jupyterlab and deploy the "hfjupyter.ipynb" file
+
+
