@@ -8,9 +8,9 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-class Maritime_dashboard:
+class maritime_dashboard:
     def __init__(self):
-        self.api_key = os.getenv('OPENWEATHER_API_KEY')
+        self.api_key = os.getenv('OPENmaritime_API_KEY')
         self.bucket_name = os.getenv('AWS_BUCKET_NAME')
         self.s3_client = boto3.client('s3')
 
@@ -28,12 +28,12 @@ class Maritime_dashboard:
         except Exception as e:
             print(f"Error creating bucket: {e}")
 
-    def fetch_maeitime(self, name):
+    def fetch_mareitime(self, name):
         """Fetch ship data from datalastic API"""
-        base_url = "hhttps://api.datalastic.com/api/v0/vessel_pro?api-key={YOUR_API_KEY}&{PARAMETER}={PARAMETER_NUMBER}"
+        base_url = "https://api.datalastic.com/api/v0/vessel_pro?api-key={YOUR_API_KEY}&{PARAMETER}={PARAMETER_NUMBER}"
         params = {
             "YOUR_API_KEY": self.api_key,
-            "PARAMETER": "uuid"
+            "PARAMETER": "uuid",
             "PARAMETER_NUMBER": "b8625b67-7142-cfd1-7b85-595cebfe4191"
         }
         
@@ -45,20 +45,20 @@ class Maritime_dashboard:
             print(f"Error fetching maritime data: {e}")
             return None
 
-    def save_to_s3(self, weather_data, name):
+    def save_to_s3(self, maritime_data, name):
         """Save maritime data to S3 bucket"""
-        if not weather_data:
+        if not maritime_data:
             return False
             
         timestamp = datetime.now().strftime('%Y%m%d-%H%M%S')
         file_name = f"maritime/{name}-{timestamp}.json"
         
         try:
-            weather_data['timestamp'] = timestamp
+            maritime_data['timestamp'] = timestamp
             self.s3_client.put_object(
                 Bucket=self.bucket_name,
                 Key=file_name,
-                Body=json.dumps(weather_data),
+                Body=json.dumps(maritime_data),
                 ContentType='application/json'
             )
             print(f"Successfully saved data for {city} to S3")
@@ -68,7 +68,7 @@ class Maritime_dashboard:
             return False
 
 def main():
-    dashboard = WeatherDashboard()
+    dashboard = maritimeDashboard()
     
     # Create bucket if needed
     dashboard.create_bucket_if_not_exists()
@@ -76,13 +76,13 @@ def main():
     cities = ["Philadelphia", "Seattle", "New York"]
     
     for city in cities:
-        print(f"\nFetching weather for {city}...")
-        weather_data = dashboard.fetch_weather(city)
-        if weather_data:
-            temp = weather_data['main']['temp']
-            feels_like = weather_data['main']['feels_like']
-            humidity = weather_data['main']['humidity']
-            description = weather_data['weather'][0]['description']
+        print(f"\nFetching maritime for {city}...")
+        maritime_data = dashboard.fetch_maritime(city)
+        if maritime_data:
+            temp = maritime_data['main']['temp']
+            feels_like = maritime_data['main']['feels_like']
+            humidity = maritime_data['main']['humidity']
+            description = maritime_data['maritime'][0]['description']
             
             print(f"Temperature: {temp}°F")
             print(f"Feels like: {feels_like}°F")
@@ -90,11 +90,11 @@ def main():
             print(f"Conditions: {description}")
             
             # Save to S3
-            success = dashboard.save_to_s3(weather_data, city)
+            success = dashboard.save_to_s3(maritime_data, city)
             if success:
-                print(f"Weather data for {city} saved to S3!")
+                print(f"maritime data for {city} saved to S3!")
         else:
-            print(f"Failed to fetch weather data for {city}")
+            print(f"Failed to fetch maritime data for {city}")
 
 if __name__ == "__main__":
     main()
