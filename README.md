@@ -29,10 +29,10 @@ This project is separted into 2 parts:
     pip install sagemaker boto3
     ```
 
-    # steps to recreate
+    # Steps to recreate
 
     - Head over to AWS Sagemaker and crete a domain and set it up for single user (use organization if it is for an org)
-    - click on the default domain which was created and launch Canvas
-    - Lunch jupyterlab and deploy the "hfjupyter.ipynb" file
+    - Click on the default domain which was created and launch Canvas
+    - Launch jupyterlab and deploy the cells in the "huggingfaceproj/hfjupyter.ipynb" file
 
 
