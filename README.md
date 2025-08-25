@@ -24,3 +24,6 @@ This project is separted into 2 parts:
         - IAM
     - Python 3.9+
     Installed packages:
+    ```
+    pip install sagemaker boto3
+    ```
