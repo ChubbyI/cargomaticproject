@@ -73,28 +73,28 @@ def main():
     # Create bucket if needed
     dashboard.create_bucket_if_not_exists()
     
-    cities = ["Philadelphia", "Seattle", "New York"]
+    names = ["MAERSK CHENNAI", "MAERSK HARVEY", "MAERSK NIKOLAI", "MAERSK ROCKY"] #CASE SENSITIVE
     
-    for city in cities:
-        print(f"\nFetching maritime for {city}...")
-        maritime_data = dashboard.fetch_maritime(city)
+    for name in names:
+        print(f"\nFetching maritime for {name}...")
+        maritime_data = dashboard.fetch_maritime(name)
         if maritime_data:
-            temp = maritime_data['main']['temp']
-            feels_like = maritime_data['main']['feels_like']
-            humidity = maritime_data['main']['humidity']
+            type = maritime_data['main']['type']
+            lat = maritime_data['main']['lat']
+            lon = maritime_data['main']['lon']
             description = maritime_data['maritime'][0]['description']
             
-            print(f"Temperature: {temp}°F")
-            print(f"Feels like: {feels_like}°F")
-            print(f"Humidity: {humidity}%")
+            print(f"type: {type}°F")
+            print(f"lat: {lat}°")
+            print(f"lon: {lon}°")
             print(f"Conditions: {description}")
             
             # Save to S3
-            success = dashboard.save_to_s3(maritime_data, city)
+            success = dashboard.save_to_s3(maritime_data, name)
             if success:
-                print(f"maritime data for {city} saved to S3!")
+                print(f"maritime data for {name} saved to S3!")
         else:
-            print(f"Failed to fetch maritime data for {city}")
+            print(f"Failed to fetch maritime data for {name}")
 
 if __name__ == "__main__":
     main()
