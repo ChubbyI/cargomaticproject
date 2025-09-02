@@ -1,14 +1,15 @@
 import os
 import json
 import boto3
+import urllib.request
 import requests
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
 
-class maritime_dashboard:
+class MaritimeDashboard:
     def __init__(self):
         self.api_key = os.getenv('OPENmaritime_API_KEY')
         self.bucket_name = os.getenv('AWS_BUCKET_NAME')
@@ -28,7 +29,7 @@ class maritime_dashboard:
         except Exception as e:
             print(f"Error creating bucket: {e}")
 
-    def fetch_mareitime(self, name):
+    def fetch_maritime(self, name):
         """Fetch ship data from datalastic API"""
         base_url = "https://api.datalastic.com/api/v0/vessel_pro?api-key={YOUR_API_KEY}&{PARAMETER}={PARAMETER_NUMBER}"
         params = {
@@ -61,14 +62,14 @@ class maritime_dashboard:
                 Body=json.dumps(maritime_data),
                 ContentType='application/json'
             )
-            print(f"Successfully saved data for {city} to S3")
+            print(f"Successfully saved data for {name} to S3")
             return True
         except Exception as e:
             print(f"Error saving to S3: {e}")
             return False
 
 def main():
-    dashboard = maritimeDashboard()
+    dashboard = MaritimeDashboard()
     
     # Create bucket if needed
     dashboard.create_bucket_if_not_exists()
@@ -98,3 +99,71 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+def lambda_handler(event, context):
+    """AWS Lambda handler for maritime data processing and SNS notification"""
+    # Get environment variables
+    api_key = os.getenv("OPENmaritime_API_KEY")
+    sns_topic_arn = os.getenv("SNS_TOPIC_ARN")
+    bucket_name = os.getenv("AWS_BUCKET_NAME")
+    
+    sns_client = boto3.client("sns")
+    s3_client = boto3.client("s3")
+    
+    # Initialize maritime dashboard
+    dashboard = MaritimeDashboard()
+    
+    # Ship names to track
+    ship_names = ["MAERSK CHENNAI", "MAERSK HARVEY", "MAERSK NIKOLAI", "MAERSK ROCKY"]
+    
+    messages = []
+    
+    for ship_name in ship_names:
+        print(f"Fetching maritime data for {ship_name}...")
+        
+        # Fetch maritime data
+        maritime_data = dashboard.fetch_maritime(ship_name)
+        
+        if maritime_data:
+            # Extract key information
+            try:
+                ship_type = maritime_data.get('main', {}).get('type', 'Unknown')
+                lat = maritime_data.get('main', {}).get('lat', 'N/A')
+                lon = maritime_data.get('main', {}).get('lon', 'N/A')
+                description = maritime_data.get('maritime', [{}])[0].get('description', 'No description available')
+                
+                # Format message for this ship
+                ship_message = f"""
+Ship: {ship_name}
+Type: {ship_type}
+Location: {lat}°N, {lon}°E
+Status: {description}
+"""
+                messages.append(ship_message.strip())
+                
+                # Save to S3
+                dashboard.save_to_s3(maritime_data, ship_name)
+                
+            except Exception as e:
+                print(f"Error processing data for {ship_name}: {e}")
+                messages.append(f"Error processing data for {ship_name}: {str(e)}")
+        else:
+            print(f"Failed to fetch data for {ship_name}")
+            messages.append(f"Failed to fetch data for {ship_name}")
+    
+    # Combine all messages
+    final_message = "\n---\n".join(messages) if messages else "No maritime data available."
+    
+    # Publish to SNS
+    try:
+        sns_client.publish(
+            TopicArn=sns_topic_arn,
+            Message=final_message,
+            Subject="Maritime Ship Updates"
+        )
+        print("Maritime data published to SNS successfully.")
+    except Exception as e:
+        print(f"Error publishing to SNS: {e}")
+        return {"statusCode": 500, "body": "Error publishing to SNS"}
+    
+    return {"statusCode": 200, "body": "Maritime data processed and sent to SNS"}
