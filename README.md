@@ -1,9 +1,15 @@
+# Cargomatic Project
+This project is separted into 2 parts:
 
-# Maritime Ship Tracking Dashboard
+- The first part is a maritime shim tracking dashboard.
+
+- The second part is the deployment of a hugging face model through AWS sagemaker for easy AI training.
+
+## Maritime Ship Tracking Dashboard
 
 A Python application for tracking maritime vessels using the Datalastic API, with AWS S3 storage and SNS notifications. This project monitors specific MAERSK ships and provides real-time location and status updates.
 
-## Features
+### Features
 
 - **Real-time Ship Tracking**: Fetches current location and status data for maritime vessels
 - **AWS S3 Integration**: Automatically stores ship data in S3 buckets with timestamps
@@ -11,14 +17,14 @@ A Python application for tracking maritime vessels using the Datalastic API, wit
 - **AWS Lambda Support**: Deployable as a serverless function for automated monitoring
 - **Error Handling**: Robust error handling for API failures and data processing issues
 
-## Prerequisites
+### Prerequisites
 
 - Python 3.7+
 - AWS Account with S3 and SNS access
 - Datalastic API key
 - Required Python packages (see requirements.txt)
 
-## Installation
+### Installation
 
 1. Clone the repository:
 ```bash
@@ -44,9 +50,8 @@ SNS_TOPIC_ARN=your_sns_topic_arn
 aws configure
 ```
 
-## Usage
 
-### Local Execution
+#### Local Execution
 
 Run the main script to fetch and display ship data:
 
@@ -60,7 +65,7 @@ This will:
 - Save data to S3 bucket
 - Print success/failure messages
 
-### AWS Lambda Deployment
+#### AWS Lambda Deployment
 
 The `lambda_handler` function is designed for AWS Lambda deployment:
 
@@ -77,7 +82,7 @@ zip -r maritime-lambda.zip src/ requirements.txt
 
 3. Set up CloudWatch Events or EventBridge to trigger the function on a schedule
 
-## Project Structure
+### Project Structure
 
 ```
 cargomaticproject/
@@ -90,7 +95,7 @@ cargomaticproject/
 └── README.md               # This file
 ```
 
-## API Integration
+### API Integration
 
 The application uses the Datalastic API to fetch vessel information:
 
@@ -98,21 +103,20 @@ The application uses the Datalastic API to fetch vessel information:
 - **Authentication**: API key-based authentication
 - **Data Format**: JSON response with vessel location, type, and status information
 
-## AWS Services Used
+### AWS Services Used
 
-### Amazon S3
+#### Amazon S3
 - Stores historical ship data with timestamps
 - File naming convention: `maritime/{ship-name}-{timestamp}.json`
 - Content type: `application/json`
 
-### Amazon SNS
+#### Amazon SNS
 - Sends formatted ship updates as notifications
 - Subject: "Maritime Ship Updates"
 - Message format includes ship name, type, location, and status
 
-    # Prerequisites
 
-## Error Handling
+### Error Handling
 
 The application includes comprehensive error handling for:
 - API connection failures
@@ -122,7 +126,7 @@ The application includes comprehensive error handling for:
 - Missing environment variables
 
 
-### Environment Variables
+#### Environment Variables
 
 | Variable | Description | Required |
 |----------|-------------|----------|
@@ -130,7 +134,7 @@ The application includes comprehensive error handling for:
 | `AWS_BUCKET_NAME` | S3 bucket name for data storage | Yes |
 | `SNS_TOPIC_ARN` | SNS topic ARN for notifications | Yes |
 
-### Ship Configuration
+#### Ship Configuration
 
 To track different ships, modify the `ship_names` list in both the `main()` function and `lambda_handler()`:
 
@@ -138,7 +142,7 @@ To track different ships, modify the `ship_names` list in both the `main()` func
 ship_names = ["YOUR_SHIP_NAME_1", "YOUR_SHIP_NAME_2"]
 ```
 
-## Monitoring and Logging
+### Monitoring and Logging
 
 The application provides detailed logging for:
 - API request status
@@ -150,10 +154,30 @@ The application provides detailed logging for:
 
 
 
-## Future Enhancements
+### Future Enhancements
 
 - [ ] Add support for more shipping companies
 - [ ] Implement data visualization dashboard
 - [ ] Add historical data analysis
 - [ ] Support for custom ship tracking criteria
 - [ ] Integration with additional maritime APIs
+
+## Deploying Hugging Face Model on AWS Sagemaker
+
+This project demonstrates how to deploy a Hugging Face model to AWS SageMaker using the SageMaker Python SDK. It includes setup of the SageMaker session, IAM role handling, and deployment of a Hugging Face model for inference.
+
+### Prerequisites
+- An AWS account with permissions for:
+    - Sagemaker
+    - S3
+    - IAM
+- Python 3.9+
+    ```
+    pip install sagemaker boto3
+    ```
+
+### Steps to recreate
+
+    - Head over to AWS Sagemaker and create a domain and set it up for single user (use organization if it is for an org)
+    - Click on the default domain which was created and launch Canvas
+    - Launch jupyterlab and deploy the cells in the "huggingfaceproj/hfjupyter.ipynb" file
