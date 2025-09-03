@@ -178,6 +178,8 @@ This project demonstrates how to deploy a Hugging Face model to AWS SageMaker us
 
 ### Steps to recreate
 
-    - Head over to AWS Sagemaker and create a domain and set it up for single user (use organization if it is for an org)
-    - Click on the default domain which was created and launch Canvas
-    - Launch jupyterlab and deploy the cells in the "huggingfaceproj/hfjupyter.ipynb" file
+- Head over to AWS Sagemaker and create a domain and set it up for single user (use organization if it is for an org)
+    
+- Click on the default domain which was created and launch Canvas
+
+- Launch jupyterlab and deploy the cells in the "huggingfaceproj/hfjupyter.ipynb" file
